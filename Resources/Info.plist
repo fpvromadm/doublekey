@@ -7,7 +7,7 @@
 	<key>CFBundleDisplayName</key>
 	<string>DoubleKey</string>
 	<key>CFBundleIdentifier</key>
-	<string>app.doublekey</string>
+	<string>io.github.fpvromadm.doublekey</string>
 	<key>CFBundleExecutable</key>
 	<string>DoubleKey</string>
 	<key>CFBundleIconFile</key>

@@ -3,9 +3,10 @@
 # ./build.sh test     run the debounce logic tests
 # ./build.sh install  build, copy to /Applications and start it
 #
-# Signing: uses $SIGN_ID if set, else the first codesigning identity in the
-# keychain, else ad-hoc. A real identity keeps the Accessibility permission
-# across rebuilds; with ad-hoc signing you re-grant it after each rebuild.
+# Signing: uses $SIGN_ID if set, else the "DoubleKey Local Signing" certificate
+# if you made one (scripts/make-signing-cert.sh), else ad-hoc. A stable
+# certificate keeps the Accessibility permission across rebuilds; with ad-hoc
+# signing you grant it again after each rebuild.
 set -euo pipefail
 cd "${0:A:h}"
 
@@ -39,7 +40,9 @@ if [[ ! -f build/AppIcon.icns ]]; then
 fi
 cp build/AppIcon.icns "$APP/Contents/Resources/"
 
-SIGN_ID=${SIGN_ID:-$(security find-identity -v -p codesigning | awk -F'"' 'NR==1 && /"/ {print $2}')}
+if [[ -z "${SIGN_ID:-}" ]] && security find-identity -v -p codesigning | grep -q '"DoubleKey Local Signing"'; then
+  SIGN_ID="DoubleKey Local Signing"
+fi
 codesign --force --sign "${SIGN_ID:--}" "$APP"
 echo "Built $APP (signed with: ${SIGN_ID:-ad-hoc})"
 

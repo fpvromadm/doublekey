@@ -1,0 +1,33 @@
+name: Bug report
+description: Double presses still get through, or real presses get lost
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happens
+      description: Which keys, and what you type vs. what you get.
+      placeholder: Typing "hello" sometimes gives "heello".
+    validations:
+      required: true
+  - type: input
+    id: mac
+    attributes:
+      label: Mac and keyboard
+      placeholder: MacBook Pro 2017, built-in keyboard
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+      placeholder: "15.3"
+    validations:
+      required: true
+  - type: dropdown
+    id: threshold
+    attributes:
+      label: Threshold setting
+      options: ["20 ms", "30 ms", "40 ms (default)", "50 ms", "60 ms", "80 ms", "100 ms"]
+    validations:
+      required: true
