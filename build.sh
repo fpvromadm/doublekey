@@ -10,8 +10,13 @@
 set -euo pipefail
 cd "${0:A:h}"
 
+# One build at a time: a second run waits here until the first one finishes
+mkdir -p build
+touch build/.lock
+zmodload zsh/system
+zsystem flock build/.lock
+
 if [[ "${1:-}" == test ]]; then
-  mkdir -p build
   swiftc -O Sources/Debouncer.swift Tests/main.swift -o build/tests
   exec build/tests
 fi
@@ -20,11 +25,12 @@ APP=build/DoubleKey.app
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 
+TMP=$(mktemp -d)
+trap 'rm -rf "$TMP"' EXIT
 for arch in arm64 x86_64; do
-  swiftc -O -target $arch-apple-macos13.0 Sources/*.swift -o build/DoubleKey-$arch
+  swiftc -O -target $arch-apple-macos13.0 Sources/*.swift -o "$TMP/DoubleKey-$arch"
 done
-lipo -create build/DoubleKey-arm64 build/DoubleKey-x86_64 -output "$APP/Contents/MacOS/DoubleKey"
-rm build/DoubleKey-arm64 build/DoubleKey-x86_64
+lipo -create "$TMP/DoubleKey-arm64" "$TMP/DoubleKey-x86_64" -output "$APP/Contents/MacOS/DoubleKey"
 cp Resources/Info.plist "$APP/Contents/"
 
 if [[ ! -f build/AppIcon.icns ]]; then
